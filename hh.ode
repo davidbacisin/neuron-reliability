@@ -1,0 +1,37 @@
+# Hodgkin-huxley equations
+dv/dt=(i0 + i1*sin(f*t) - gna*h*(v-vna)*m^3-gk*(v-vk)*n^4-gl*(v-vl))/c
+dn/dt=an(v)*(1-n)-bn(v)*n
+dm/dt=am(v)*(1-m)-bm(v)*m
+dh/dt=ah(v)*(1-h)-bh(v)*h
+par i0=2, i1=0, f=0
+par vna=56,vk=-77,vl=-68,gna=120,gk=36,gl=.3,c=1
+# an(v) =  .01*(v+61)/(1-exp((v-61)/10))
+an(v) =  .01*(v+61)/(1-exp(-(v+61)/10))
+bn(v) =  .125*exp(-(v+71)/80)
+# am(v) = .1*(v+51)/(1-exp(-(v+51)/10))
+am(v) = .1*(v+46)/(1-exp(-(v+46)/10))
+bm(v) =  4*exp(-(v+71)/18) 
+ah(v) =  0.07*exp(-(v+71)/20)
+bh(v) =  1/(1+exp(-(v+41)/10))
+init v=-71,m=.052,h=.596,n=.317
+
+aux m = am(v) + bm(v)
+aux n = an(v) + bn(v)
+aux h = ah(v) + bh(v)
+
+@ bell=0
+@ ylo=-100,yhi=50
+
+### AUTO options ###
+# number of time steps to use in plotting limit cycles
+@ ntst=40
+# max and min step size for AUTO
+@ dsmin=1e-5,dsmax=0.1
+# range for parameter
+@ parmin=2,parmax=5
+# window for plotting diagram
+@ autoxmin=2,autoxmax=5
+@ autoymin=-80,autoymax=40
+@ nmax=1000
+
+done
