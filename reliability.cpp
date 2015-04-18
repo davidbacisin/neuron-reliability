@@ -1,9 +1,12 @@
 /*
 
 */
-
-#include "MorrisLecar.h"
+#ifdef HH
 #include "HodgkinHuxley.h"
+#else
+#include "MorrisLecar.h"
+#endif
+
 #include "RungeKutta.h"
 
 #include <stdio.h>
@@ -21,7 +24,10 @@
 #define I1_step 0.1
 #define f_step 1
 
+#ifndef dt // should be defined in RungeKutta.h
 #define dt 0.1
+#endif
+
 #define t_pre 50.0
 #define t_measure 100.0
 #define t_post 50.0
@@ -178,23 +184,28 @@ int main() {
 	*/
 	TrialParameters trialData[THREAD_COUNT];
 	for (int th=0; th < THREAD_COUNT; th++ ) {
+		#ifdef HH
+		trialData[th].neuron.state[0] = -67.2;
+		trialData[th].neuron.state[1] = 0.31;
+		trialData[th].neuron.state[2] = 0.26;
+		trialData[th].neuron.state[3] = 0.01;
+		#else
 		trialData[th].neuron.state[0] = -21.35;
 		trialData[th].neuron.state[1] = 0.2;
-		// trialData[th].neuron.state[2] = 0.26;
-		// trialData[th].neuron.state[3] = 0.01;
+		#endif
 		trialData[th].seed = -585 + th;
 	}
 	
 	// open our output file
 	// reliability_hh_bak_I03.6_supra_trials500_sigma0.3_t50-100-50.log	
-	logfile = fopen("reliability.log", "w");
+	logfile = fopen("data/reliability.log", "w");
 	if (logfile == NULL) {
 		printf("Cannot open the file.\n");
 		exit(1);
 	}
 	
 	// to plot voltage vs time
-	vlogfile = fopen("voltage.log", "w");
+	vlogfile = fopen("data/voltage.log", "w");
 	if (vlogfile == NULL) {
 		printf("Cannot open the file.\n");
 		exit(1);
@@ -208,7 +219,11 @@ int main() {
 	HANDLE threads[THREAD_COUNT];
 #endif
 	
+	#ifdef HH
+	I0 = 3.6;
+	#else
 	I0 = 25.4; // 25.4 for ML, 3.6 for HH
+	#endif
 	// iterate over I1 from zero to one
 	for(I1 = 0.0; I1 <= 1.0; I1 += I1_step) {
 		// iterate over frequency

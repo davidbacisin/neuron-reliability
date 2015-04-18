@@ -4,15 +4,17 @@ Models a Morris Lecar neuron. The parameters here result in Type II  behavior.
 */
 
 #include "MorrisLecar.h"
+#ifdef __AVX__
 #include <emmintrin.h>
 #include <immintrin.h>
+#endif
 
 MorrisLecar::MorrisLecar() {
 	eq_count = 2;
 	
 	diff_eq = (double (**)(double *, double)) malloc(eq_count * sizeof(void *));
-	diff_eq[0] = &MorrisLecar::F0;
-	diff_eq[1] = &MorrisLecar::F1;
+	diff_eq[0] = &MorrisLecar::dV;
+	diff_eq[1] = &MorrisLecar::dw;
 	
 	state = (double *) malloc(eq_count * sizeof(double));
 }
@@ -22,7 +24,7 @@ MorrisLecar::~MorrisLecar() {
 	free(state);
 }
 
-double MorrisLecar::F0(double *V, double I) {
+double MorrisLecar::dV(double *V, double I) {
 	const double C = 1.0;
 	const double gCa = 1.1;
 	const double gK = 2.0;
@@ -30,7 +32,11 @@ double MorrisLecar::F0(double *V, double I) {
 	const double ECa = 100.0;
 	const double EK = -70.0;
 	const double EL = -50.0;
-	
+#ifdef __AVX__
+/*
+AVX is an instruction set from Intel which allows simultaneous operation
+on 4 doubles. Use it if we have it.
+*/
 	double Va[] __attribute__ ((aligned (32))) = {V[0], V[0], V[0], 1.0},
 		   Ea[] __attribute__ ((aligned (32))) = {EL, ECa, EK, 0.0},
 		   Ga[] __attribute__ ((aligned (32))) = {-gL, -gCa * minf(V[0]), -gK * V[1], I};
@@ -55,15 +61,14 @@ double MorrisLecar::F0(double *V, double I) {
 	_mm_storel_pd(&sseVal, dotproduct);
 	sseVal /= C;
 	
-		
-	// double val = (-gL * (V[0] - EL) - gCa * minf(V[0])*(V[0] - ECa)
-		// - gK * V[1] * (V[0] - EK) + I) / C;
-	// printf("Difference %f\n", val - sseVal);
-		
 	return sseVal;
+#else	
+	return (-gL * (V[0] - EL) - gCa * minf(V[0]) * (V[0] - ECa)
+		 - gK * V[1] * (V[0] - EK) + I) / C;
+#endif
 }
 
-double MorrisLecar::F1(double *V, double I) {
+double MorrisLecar::dw(double *V, double I) {
 	const double phi = 0.2;
 
 	return  (phi * (winf(V[0]) - V[1])/tauw(V[0]));;

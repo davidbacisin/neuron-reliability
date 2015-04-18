@@ -11,8 +11,8 @@ public:
 	~MorrisLecar();
 		
 private:	
-	static double F0(double *V, double I);
-	static double F1(double *V, double I);
+	static double dV(double *V, double I);
+	static double dw(double *V, double I);
 	
 	static double minf(double pot);
 	static double winf(double pot);

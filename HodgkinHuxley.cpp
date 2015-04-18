@@ -34,7 +34,11 @@ double HodgkinHuxley::dV(double *V, double I) {
 	const double ENa = 50.0;
 	const double EK = -77.0;
 	const double EL = -54.4;
-#ifdef __AVX__	
+#ifdef __AVX__
+/*
+AVX is an instruction set from Intel which allows simultaneous operation
+on 4 doubles. Use it if we have it.
+*/
 	double Va[] __attribute__ ((aligned (32))) = {V[0], V[0], V[0], 1.0},
 		   Ea[] __attribute__ ((aligned (32))) = {EL, ENa, EK, 0.0},
 		   Ga[] __attribute__ ((aligned (32))) = {-gL, -gNa * pow(V[2], 3.0) * V[3], -gK * pow(V[1], 4.0), I};
