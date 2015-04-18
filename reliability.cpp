@@ -3,8 +3,10 @@
 */
 #ifdef HH
 #include "HodgkinHuxley.h"
+#define NEURON_MODEL HodgkinHuxley
 #else
 #include "MorrisLecar.h"
+#define NEURON_MODEL MorrisLecar
 #endif
 
 #include "RungeKutta.h"
@@ -43,7 +45,7 @@ FILE *logfile,
 float gasdev(long *idum);
 
 struct TrialParameters {
-	MorrisLecar neuron;
+	NEURON_MODEL neuron;
 	long seed;
 	float I0,
 		  I1,
@@ -64,6 +66,8 @@ double getReliability(TrialParameters *tp) {
 	
 	double V_prev = 0.0,
 		   V_threshold = 20.0;
+
+	bool became_unstable = false;
 		   
 	std::vector<long> psth(binCount);
 	std::vector<long> nspikes(trials);
@@ -80,6 +84,11 @@ double getReliability(TrialParameters *tp) {
 			I = tp->I0 + tp->I1 * sin(2.0 / 1000.0 * M_PI * tp->f * t);
 		
 			RungeKutta(&(tp->neuron), I, Inoise);
+
+			if (isnan(tp->neuron.state[0])){ 
+				became_unstable = true;
+				break;
+			}
 			
 			// fprintf(vlogfile, "%lf\t%lf\n", t, tp->neuron.state[0]);
 			
@@ -108,6 +117,11 @@ double getReliability(TrialParameters *tp) {
 			
 			V_prev = tp->neuron.state[0];				
 		}
+	}
+
+	if (became_unstable) {
+		printf("Became unstable!\n");
+		return -1;
 	}
 	
 	// now calculate reliability

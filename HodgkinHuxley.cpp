@@ -65,7 +65,7 @@ on 4 doubles. Use it if we have it.
 		
 	return sseVal;
 #else
-	return (-gL * (V[0] - EL) - gNa * pow(V[2], 3.0) * V[3] * (V[0] - ECa)
+	return (-gL * (V[0] - EL) - gNa * pow(V[2], 3.0) * V[3] * (V[0] - ENa)
 		- gK * pow(V[1], 4.0) * (V[0] - EK) + I) / C;
 #endif
 }
