@@ -1,6 +1,5 @@
 #include "RungeKutta.h"
 
-#define dt 0.1
 #define MAX_EQS 4
 /*
 Runge-Kutta second-order aka the midpoint method

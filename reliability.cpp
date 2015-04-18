@@ -30,9 +30,15 @@
 #define dt 0.1
 #endif
 
+#ifdef HH
+#define t_pre 25.0
+#define t_measure 50.0
+#define t_post 25.0
+#else
 #define t_pre 50.0
 #define t_measure 100.0
 #define t_post 50.0
+#endif
 
 #ifdef WIN32
 #define THREAD_COUNT 1
@@ -67,7 +73,7 @@ double getReliability(TrialParameters *tp) {
 	double V_prev = 0.0,
 		   V_threshold = 20.0;
 
-	bool became_unstable = false;
+	int unstable_trials = 0;
 		   
 	std::vector<long> psth(binCount);
 	std::vector<long> nspikes(trials);
@@ -86,11 +92,12 @@ double getReliability(TrialParameters *tp) {
 			RungeKutta(&(tp->neuron), I, Inoise);
 
 			if (isnan(tp->neuron.state[0])){ 
-				became_unstable = true;
+				unstable_trials++;
 				break;
 			}
 			
-			// fprintf(vlogfile, "%lf\t%lf\n", t, tp->neuron.state[0]);
+			//fprintf(vlogfile, "%lf\t%lf\n", t, tp->neuron.state[0]);
+			//printf("%lf\t%lf\n", t, tp->neuron.state[0]);
 			
 			// increment spike count if we're over the threshold
 			// but the previous value was under the threshold
@@ -119,8 +126,8 @@ double getReliability(TrialParameters *tp) {
 		}
 	}
 
-	if (became_unstable) {
-		printf("Became unstable!\n");
+	if (unstable_trials) {
+		printf("%d trials became unstable!\n", unstable_trials);
 		return -1;
 	}
 	
