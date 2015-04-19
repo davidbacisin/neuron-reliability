@@ -2,18 +2,20 @@
 
 */
 #ifdef HH
-#include "HodgkinHuxley.h"
+#include "HodgkinHuxley.cpp"
 #define NEURON_MODEL HodgkinHuxley
 #else
 #include "MorrisLecar.h"
 #define NEURON_MODEL MorrisLecar
 #endif
 
-#include "RungeKutta.h"
+#include "RungeKutta.cpp"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <vector>
+
+#undef WIN32
 #ifdef WIN32
 #include <windows.h>
 #endif
@@ -23,8 +25,8 @@
 
 // intervals
 #define I0_step 0.01
-#define I1_step 0.1
-#define f_step 1
+#define I1_step 0.01
+#define f_step 0.1
 
 #ifndef dt // should be defined in RungeKutta.h
 #define dt 0.1
@@ -90,12 +92,12 @@ double getReliability(TrialParameters *tp) {
 			I = tp->I0 + tp->I1 * sin(2.0 / 1000.0 * M_PI * tp->f * t);
 		
 			RungeKutta(&(tp->neuron), I, Inoise);
-
+			/*
 			if (isnan(tp->neuron.state[0])){ 
 				unstable_trials++;
 				break;
 			}
-			
+			*/
 			//fprintf(vlogfile, "%lf\t%lf\n", t, tp->neuron.state[0]);
 			//printf("%lf\t%lf\n", t, tp->neuron.state[0]);
 			
@@ -125,12 +127,12 @@ double getReliability(TrialParameters *tp) {
 			V_prev = tp->neuron.state[0];				
 		}
 	}
-
+	/*
 	if (unstable_trials) {
 		printf("%d trials became unstable!\n", unstable_trials);
 		return -1;
 	}
-	
+	*/
 	// now calculate reliability
 	double totalVariance = 0.0,
 		   psthAvg = 0.0,
@@ -219,23 +221,23 @@ int main() {
 	
 	// open our output file
 	// reliability_hh_bak_I03.6_supra_trials500_sigma0.3_t50-100-50.log	
-	logfile = fopen("data/reliability.log", "w");
+	logfile = fopen("data/reliability-d.log", "w");
 	if (logfile == NULL) {
 		printf("Cannot open the file.\n");
 		exit(1);
 	}
 	
 	// to plot voltage vs time
-	vlogfile = fopen("data/voltage.log", "w");
+/* 	vlogfile = fopen("data/voltage-hi.log", "w");
 	if (vlogfile == NULL) {
 		printf("Cannot open the file.\n");
 		exit(1);
-	}
+	} */
 	
 	// print column headings
 	fprintf(logfile, "I1\tfreq\treliability\n");
-	fprintf(vlogfile, "t\tV\n");
-
+/* 	fprintf(vlogfile, "t\tV\n");
+ */
 #ifdef WIN32	
 	HANDLE threads[THREAD_COUNT];
 #endif
@@ -246,7 +248,7 @@ int main() {
 	I0 = 25.4; // 25.4 for ML, 3.6 for HH
 	#endif
 	// iterate over I1 from zero to one
-	for(I1 = 0.0; I1 <= 1.0; I1 += I1_step) {
+	for(I1 = 0.75; I1 <= 1.0; I1 += I1_step) {
 		// iterate over frequency
 		for(f = 0.0; f <= 120.0; ) {
 			for (int th=0; th < THREAD_COUNT; th++, f += f_step) {
@@ -270,8 +272,8 @@ int main() {
 	
 	// close the files
 	fclose(logfile);
-	fclose(vlogfile);
-	
+/* 	fclose(vlogfile);
+ */	
 	return 0;
 }
 

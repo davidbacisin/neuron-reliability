@@ -1,4 +1,4 @@
-function plotReliability(filename, supra)
+function plotReliability(filename)
 
 datab = tdfread(filename);
 
@@ -12,12 +12,11 @@ rb = sqrt(rb);
 rb = real(rb/max(rb)) * color_res; % map onto color spectrum
 
 colormap(transpose([1:-1/color_res:0; 1:-1/color_res:0; 1:-1/color_res:0]));
-subplot(2,1,1);
 image([datab.freq(1) datab.freq(end)], [datab.I1(1) datab.I1(end)], vec2mat(rb, fcount));
 ylabel('I_1');
 xlabel('f');
 hcb = colorbar;
 set(gca, 'YDir', 'normal');
-set(hcb,'YTickLabel',[0.1:0.1:1]);
+set(hcb,'YTickLabel',0.1:0.1:1);
 
 end

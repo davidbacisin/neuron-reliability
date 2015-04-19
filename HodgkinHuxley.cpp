@@ -37,7 +37,7 @@ double HodgkinHuxley::dV(double *V, double I) {
 #ifdef __AVX__
 /*
 AVX is an instruction set from Intel which allows simultaneous operation
-on 4 doubles. Use it if we have it.
+on 4 doubles. Seems to be slower than optimized FPU, though.
 */
 	double Va[] __attribute__ ((aligned (32))) = {V[0], V[0], V[0], 1.0},
 		   Ea[] __attribute__ ((aligned (32))) = {EL, ENa, EK, 0.0},
