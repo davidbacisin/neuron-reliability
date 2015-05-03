@@ -3,7 +3,7 @@ dv/dt=(i0 + i1*sin(f*t) - gna*h*(v-vna)*m^3-gk*(v-vk)*n^4-gl*(v-vl))/c
 dn/dt=an(v)*(1-n)-bn(v)*n
 dm/dt=am(v)*(1-m)-bm(v)*m
 dh/dt=ah(v)*(1-h)-bh(v)*h
-par i0=2, i1=0, f=0
+par i0=3.6, i1=0, f=0
 par vna=56,vk=-77,vl=-68,gna=120,gk=36,gl=.3,c=1
 # an(v) =  .01*(v+61)/(1-exp((v-61)/10))
 an(v) =  .01*(v+61)/(1-exp(-(v+61)/10))

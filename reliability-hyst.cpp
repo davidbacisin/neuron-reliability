@@ -20,8 +20,8 @@
 #include <windows.h>
 #endif
 
-#define trials 100
-#define sigma 0.3
+#define trials 1
+#define sigma 0.0
 
 // intervals
 #define I0_step 0.01
@@ -35,7 +35,7 @@
 #ifdef HH
 #define t_pre 25.0
 #define t_measure 50.0
-#define t_post 25.0
+#define t_post 0.0
 #else
 #define t_pre 50.0
 #define t_measure 100.0
@@ -102,7 +102,7 @@ double getReliability(TrialParameters *tp) {
 			}
 			*/
 			
-			//fprintf(vlogfile, "%lf\t%lf\t%lf\n", t, I, tp->neuron.state[0]);
+			fprintf(vlogfile, "%lf\t%lf\t%lf\t%f\t%f\t%f\n", t, I, tp->neuron.state[0], tp->neuron.state[1], tp->neuron.state[2], tp->neuron.state[3]);
 			//printf("%lf\t%lf\n", t, tp->neuron.state[0]);
 			
 			// increment spike count if we're over the threshold
@@ -113,7 +113,7 @@ double getReliability(TrialParameters *tp) {
 				t > t_pre &&
 				t < t_pre + t_measure) { // count only the spikes in the middle
 				events++;
-				//printf("Spike!\n");
+				printf("Spike!\n");
 			}
 			
 			if (subpass >= binSubpass) {
@@ -201,64 +201,68 @@ int main() {
 			state[1] = 0.43
 	HodgkinHuxley:
 		Subthreshold:
-			state[0] = -67.2
-			state[1] = 0.31
-			state[2] = 0.26
-			state[3] = 0.01
+			state[0] = -67.3
+			state[1] = 0.42
+			state[2] = 0.24
+			state[3] = 0.06
 		Suprathreshold:
 			state[0] = 1.0
-			state[1] = 0.052 // 0.317
-			state[2] = 0.596 // 0.052
-			state[3] = 0.317 // 0.596
+			state[1] = 0.31
+			state[2] = 0.052
+			state[3] = 0.596
 	*/
 	TrialParameters trialData[THREAD_COUNT];
 	for (int th=0; th < THREAD_COUNT; th++ ) {
 		#ifdef HH
-		trialData[th].neuron.state[0] = -67.2;
-		trialData[th].neuron.state[1] = 0.31;
-		trialData[th].neuron.state[2] = 0.26;
-		trialData[th].neuron.state[3] = 0.01;
+		trialData[th].neuron.state[0] = -67.3;
+		trialData[th].neuron.state[1] = 0.42;
+		trialData[th].neuron.state[2] = 0.24;
+		trialData[th].neuron.state[3] = 0.06;
 		#else
-		trialData[th].neuron.state[0] = 4.65;
-		trialData[th].neuron.state[1] = 0.43;
+		trialData[th].neuron.state[0] = -21.35;
+		trialData[th].neuron.state[1] = 0.2;
 		#endif
 		trialData[th].seed = -585 + th;
 	}
 	
 	// open our output file
 	// reliability_hh_bak_I03.6_supra_trials500_sigma0.3_t50-100-50.log	
-	logfile = fopen("data/reliability-ml-supra.log", "w");
+	logfile = fopen("data/reliability-hh-sub.log", "w");
 	if (logfile == NULL) {
 		printf("Cannot open the file.\n");
 		exit(1);
 	}
 	
 	// to plot voltage vs time
-  	vlogfile = fopen("data/voltage.log", "w");
+  	// /*
+	vlogfile = fopen("data/voltage.log", "w");
 	if (vlogfile == NULL) {
 		printf("Cannot open the file.\n");
 		exit(1);
 	}
+	// */
 
 	// print column headings
 	fprintf(logfile, "I1\tfreq\treliability\n");
- 	fprintf(vlogfile, "t\tI\tV\n");
+ 	fprintf(vlogfile, "t\tI\tV\tn\tm\th\n");
 
 #ifdef WIN32	
 	HANDLE threads[THREAD_COUNT];
 #endif
 	
 	#ifdef HH
-	I0 = 3.6;
+	I0 = 2.6; // below bistable region
+	// I0 = 4.3; // above bistable region
+	I0_goal = 2.6; // in bistable region
 	#else
-	//I0 = 24.5; // below bistable region
-	I0 = 26.5; // above bistable region
+	I0 = 24.5; // below bistable region
+	//I0 = 26.5; // above bistable region
 	I0_goal = 25.4; // in bistable region
 	#endif
 	// iterate over I1 from zero to one
-	for(I1 = 0.0; I1 <= 1.0; I1 += I1_step) {
+	for(I1 = 0.0; I1 <= 0.0; I1 += I1_step) {
 		// iterate over frequency
-		for(f = 0.0; f <= 120.0; ) {
+		for(f = 0.0; f <= 0.0; ) {
 			for (int th=0; th < THREAD_COUNT; th++, f += f_step) {
 				trialData[th].I0 = I0;
 				trialData[th].I0_goal = I0_goal;
@@ -281,7 +285,7 @@ int main() {
 	
 	// close the files
 	fclose(logfile);
- 	// fclose(vlogfile);
+ 	fclose(vlogfile);
 	
 	return 0;
 }

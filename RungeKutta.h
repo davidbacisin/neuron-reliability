@@ -5,6 +5,7 @@
 #include <stdlib.h>
 
 #define dt 0.0006
+// #define dt 0.1
 
 void RungeKutta(NeuronModel *model, double I, double stochastic);
 
