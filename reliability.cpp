@@ -20,13 +20,13 @@
 #include <windows.h>
 #endif
 
-#define trials 5
+#define trials 10
 #define sigma 0.3
 
 // intervals
 #define I0_step 0.01
-#define I1_step 0.01
-#define f_step 0.1
+#define I1_step 0.1
+#define f_step 1
 
 #ifndef dt // should be defined in RungeKutta.h
 #define dt 0.1
@@ -35,7 +35,7 @@
 #ifdef HH
 #define t_pre 25.0
 #define t_measure 50.0
-#define t_post 25.0
+#define t_post 0.0
 #else
 #define t_pre 50.0
 #define t_measure 100.0
@@ -201,9 +201,9 @@ int main() {
 			state[3] = 0.01
 		Suprathreshold:
 			state[0] = 1.0
-			state[1] = 0.052 // 0.317
-			state[2] = 0.596 // 0.052
-			state[3] = 0.317 // 0.596
+			state[1] = 0.317
+			state[2] = 0.052
+			state[3] = 0.596
 	*/
 	TrialParameters trialData[THREAD_COUNT];
 	for (int th=0; th < THREAD_COUNT; th++ ) {
@@ -221,7 +221,7 @@ int main() {
 	
 	// open our output file
 	// reliability_hh_bak_I03.6_supra_trials500_sigma0.3_t50-100-50.log	
-	logfile = fopen("data/reliability-d.log", "w");
+	logfile = fopen("data/reliability_hh_I03.6_sub_trials10_sigma0.3_t25-50-0.log", "w");
 	if (logfile == NULL) {
 		printf("Cannot open the file.\n");
 		exit(1);
@@ -248,7 +248,7 @@ int main() {
 	I0 = 25.4; // 25.4 for ML, 3.6 for HH
 	#endif
 	// iterate over I1 from zero to one
-	for(I1 = 0.75; I1 <= 1.0; I1 += I1_step) {
+	for(I1 = 0.0; I1 <= 1.0; I1 += I1_step) {
 		// iterate over frequency
 		for(f = 0.0; f <= 120.0; ) {
 			for (int th=0; th < THREAD_COUNT; th++, f += f_step) {

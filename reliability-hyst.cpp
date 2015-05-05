@@ -201,10 +201,10 @@ int main() {
 			state[1] = 0.43
 	HodgkinHuxley:
 		Subthreshold:
-			state[0] = -67.3
-			state[1] = 0.42
-			state[2] = 0.24
-			state[3] = 0.06
+			state[0] = -67.2
+			state[1] = 0.31
+			state[2] = 0.26
+			state[3] = 0.01
 		Suprathreshold:
 			state[0] = 1.0
 			state[1] = 0.31
